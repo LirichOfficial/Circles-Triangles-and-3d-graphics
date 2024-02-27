@@ -1,5 +1,4 @@
 #include <bits/stdc++.h>
-#include <memory>
 
 #define i64 long long
 #define d64 long double
@@ -76,14 +75,14 @@ class Vector {
 			return x * a.x + y * a.y + z * a.z;
 		}
 
-/*		Vector operator *(Vector a) {
+		Vector operator *(Vector a) {
 			Vector one, two, three;
 			one = Vector(Point(1, 0, 0)).Mul(y * a.z - z * a.y);
 			two = Vector(Point(0, 1, 0)).Mul(x * a.z - z * a.x);
 			three = Vector(Point(0, 0, 1)).Mul(x * a.y - y * a.x);
 			return one - two + three;
 		}
-*/
+
 };
 
 class Sphere {

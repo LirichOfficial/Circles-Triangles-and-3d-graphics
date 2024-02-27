@@ -90,13 +90,13 @@ signed main() {
 			} else {
 				output[i * WIDE + j] = {1, 0, 0};
                                 if (pt -> first < pt -> second) {
-                                        Vector sud = (v.Mul(pt -> first) + camera).Mul(-1);
-                                        Point tp = Shift(camera, v.Mul(pt -> first));
+					Point tp = Shift(camera, v.Mul(pt -> first));
+                                        Vector sud = Vector(tp, camera);
                                         Vector tud = Vector(tp, sun);
                                         output[i * WIDE + j].r *= max(sud % tud / (sud.Len() * tud.Len()), 0.0) * 2;
                                 } else {
-                                        Vector sud = (v.Mul(pt -> second) + camera).Mul(-1);
-                                        Point tp = Shift(camera, v.Mul(pt -> second));
+					Point tp = Shift(camera, v.Mul(pt -> second));
+                                        Vector sud = Vector(tp, camera);
                                         Vector tud = Vector(tp, sun);
                                         output[i * WIDE + j].r *= max(sud % tud / (sud.Len() * tud.Len()), 0.0) * 2;
                                 }
