@@ -17,8 +17,12 @@ class Color {
 		double r, g, b;
 		Color(double reed = 0, double greeen = 0, double bluee = 0): r(reed), g(greeen), b(bluee) {}
 
-		Color ColorRev() {
+		Color ColorRev() const {
 			return Color(1 - r, 1 - g, 1 - b);
+		}
+
+		Color operator *(double k) const {
+			return Color(r * k, g * k, b * k);
 		}
 };
 
@@ -88,17 +92,17 @@ signed main() {
 			if (!pt) {
 				continue;
 			} else {
-				output[i * WIDE + j] = {1, 0, 0};
+				output[i * WIDE + j] = output[i * WIDE + j].ColorRev();
                                 if (pt -> first < pt -> second) {
                                         Vector sud = (v.Mul(pt -> first) + camera).Mul(-1);
                                         Point tp = Shift(camera, v.Mul(pt -> first));
                                         Vector tud = Vector(tp, sun);
-                                        output[i * WIDE + j].r *= max(sud % tud / (sud.Len() * tud.Len()), 0.0) * 2;
+                                        output[i * WIDE + j] = output[i * WIDE + j] * max(sud % tud / (sud.Len() * tud.Len()), 0.0) * 2;
                                 } else {
                                         Vector sud = (v.Mul(pt -> second) + camera).Mul(-1);
                                         Point tp = Shift(camera, v.Mul(pt -> second));
                                         Vector tud = Vector(tp, sun);
-                                        output[i * WIDE + j].r *= max(sud % tud / (sud.Len() * tud.Len()), 0.0) * 2;
+                                        output[i * WIDE + j] = output[i * WIDE + j] * max(sud % tud / (sud.Len() * tud.Len()), 0.0) * 2;
                                 }
 			}
 		}
