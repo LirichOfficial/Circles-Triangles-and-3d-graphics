@@ -12,6 +12,7 @@ const int WIDE = 2000;
 const int HEIT = 2000;
 const int MAXCOL = 255;
 const int INF = 1e9;
+const double EPS = 1e-12;
 
 
 ostream& operator<<(ostream &out, Color a) {
@@ -68,9 +69,9 @@ signed main() {
 	double mh = 1, mw = 1, md = 1;
 	
 	Point camera = Point(0, 0, 0);
-	Point sun = Point(40, 0, 0);
+	Point sun = Point(40, -10, 0);
 
-	vector<Sphere> shars = {Sphere(Point(-3, 0, 20), 4, Color(1, 0, 0)), Sphere(Point(4, 0, 15), 4, Color(1, 1, 0))};
+	vector<Sphere> shars = {Sphere(Point(-5, 0, 20), 4, Color(0.5, 0, 0)), Sphere(Point(2, 0, 15), 4, Color(0.5, 0.5, 0))};
 
 	for (int i = 0; i < HEIT; i++) {
 		for (int j = 0; j < WIDE; j++) {
@@ -87,15 +88,23 @@ signed main() {
                                         	Vector sud = (v.Mul(pt -> first) + camera).Mul(-1);
                                         	Point tp = Shift(camera, v.Mul(pt -> first));
                                         	Vector tud = Vector(tp, sun);
-						if (sud.Len() < dst) {
-                                        		cl = shar.col * max(sud % tud / (sud.Len() * tud.Len()), 0.0) * 2;
+						auto pp = shar.Intersection(tud.Mul(-1), sun);
+						double d = min(pp -> first, pp -> second);
+						if (sud.Len() < dst && abs(d - 1) <= EPS) {
+                                        		cl = shar.col * (sud % tud / (sud.Len() * tud.Len()) + 1);
+						} else if (sud.Len() < dst) {
+							cl = {0, 0, 0};
 						}
                                 	} else {
                                         	Vector sud = (v.Mul(pt -> second) + camera).Mul(-1);
                                         	Point tp = Shift(camera, v.Mul(pt -> second));
                                         	Vector tud = Vector(tp, sun);
-                                        	if (sud.Len() < dst) {
-                                                        cl = shar.col * max(sud % tud / (sud.Len() * tud.Len()), 0.0) * 2;
+                                         	auto pp = shar.Intersection(tud.Mul(-1), sun);
+                                                double d = min(pp -> first, pp -> second);
+                                                if (sud.Len() < dst && abs(d - 1) <= EPS) {
+                                                        cl = shar.col * (sud % tud / (sud.Len() * tud.Len()) + 1);
+                                                } else if (sud.Len() < dst) {
+                                                        cl = {0, 0, 0};
                                                 }
                                 	}
 				}
