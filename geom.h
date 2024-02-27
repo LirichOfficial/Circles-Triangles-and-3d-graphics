@@ -1,94 +1,113 @@
 #include <bits/stdc++.h>
+#include <memory>
+
+#define i64 long long
+#define d64 long double
 
 using namespace std;
 
-#define double long double
-#define int long long
-
 class Point {
 	public:
-		double x, y;
-		Point(double x_ = 0, double y_ = 0): x(x_), y(y_) {}
-		Point operator +(Point a) {
-			return {a.x + x, a.y + y};
-		}
-		Point operator -(Point a) {
-			return {x - a.x, y - a.y};
-		}
-		double operator %(Point a) {
-			return	a.x * x + a.y * y;
-		}
-		double operator *(Point a) {
-			return	x * a.y - y * a.x;
-		}
-		Point turn(double angle) {
-			double a = x * cosl(angle) - y * sinl(angle);
-			double b = x * sinl(angle) + y * cosl(angle);
-			return {a, b};
-		}
-		double len2() {
-			return x * x + y * y;
-		}
-		double len() {
-			return hypotl(x, y);
-		}
+		double x;
+		double y;
+		double z;
+		Point() {}
+		
+		Point(double x, double y, double z):
+			x(x),
+			y(y),
+			z(z)
+		{}
 };
 
-istream& operator>> (istream& in, Point &a) {
-	in >> a.x >> a.y;
-	return in;
-}
-
-bool inside(Point a, Point b, Point c, Point p) {
-        return ((a - b) * (p - b)) * ((p - b) * (c - b)) >= 0 && ((a - b) * (c - b)) * ((a - b) * (p - b)) >= 0;
-}
-
-//многоугольник
-
-class polygon {
+class Vector {
 	public:
-		int n;
-		vector<Point> pt;
-		polygon(int n_ = 0, vector<Point> input = {}) {
-			n = n_;
-			pt = input;
+		double x;
+		double y;
+		double z;
+
+		Vector() {}
+
+		Vector(Point a, Point b) {
+			x = b.x - a.x;
+			y = b.y - a.y;
+			z = b.z - a.z;
 		}
-		vector<vector<Point>> triangulation() {
-			int sz = n;
-			int idx = 0;
-			vector<vector<Point>> ans;
-			vector<int> link(n);
-			for (int i = 0; i < n; i++) {
-				link[i] = (i + 1) % n;
+
+		Vector(Point a) {
+			x = a.x;
+			y = a.y;
+			z = a.z;
+		}
+
+		double Len() const {
+			return sqrt(x * x + y * y + z * z);
+		}
+
+		Vector operator -(Vector a) const {
+			return Vector(Point(x - a.x, y - a.y, z - a.z));
+		}
+
+		Vector operator +(Vector a) const {
+			return Vector(Point(x + a.x, y + a.y, z + a.z));
+		}
+
+		Vector operator -(Point a) const {
+                        return Vector(Point(x - a.x, y - a.y, z - a.z));
+                }
+
+                Vector operator +(Point a) const {
+                        return Vector(Point(x + a.x, y + a.y, z + a.z));
+                }
+
+		Vector operator -(double a) const {
+                        return Vector(Point(x - a, y - a, z - a));
+                }
+
+                Vector operator +(double a) const {
+                        return Vector(Point(x + a, y + a, z + a));
+                }
+
+		Vector Mul(double k) const {
+			return Vector(Point(x * k, y * k, z * k));		
+		}
+
+		double operator %(Vector a) const {
+			return x * a.x + y * a.y + z * a.z;
+		}
+
+/*		Vector operator *(Vector a) {
+			Vector one, two, three;
+			one = Vector(Point(1, 0, 0)).Mul(y * a.z - z * a.y);
+			two = Vector(Point(0, 1, 0)).Mul(x * a.z - z * a.x);
+			three = Vector(Point(0, 0, 1)).Mul(x * a.y - y * a.x);
+			return one - two + three;
+		}
+*/
+};
+
+class Sphere {
+	public:
+		Point centre;
+		double r;
+
+		Sphere() {}
+
+		Sphere(Point centre, double r): centre(centre), r(r) {}
+
+		shared_ptr<pair<double, double>> Intersection(Vector v, Point a) const {
+			Vector u = Vector(centre, a);
+			double discriminant = ((v % u) * 2) * ((v % u) * 2) - 4 * (v % v) * (u % u - r * r);	
+			if (discriminant < 0) {
+				return nullptr;
 			}
-			while (sz != 3) {
-				Point v1 = pt[idx], v2 = pt[link[idx]], v3 = pt[link[link[idx]]];
-				int szt = sz - 3;
-				int idxt = link[link[link[idx]]];
-				bool found = true;
-				while (szt) {
-					if (inside(v1, v2, v3, pt[idxt]) && inside(v2, v3, v1, pt[idxt])) {
-						found = false;
-						break;
-					}
-					idxt = link[idxt];
-					szt--;
-				}
-				if (found && (v2 - v1) * (v3 - v1) <= 0) {
-					sz--;
-					link[idx] = link[link[idx]];
-					ans.push_back({v1, v2, v3});
-				}
-				idx = link[idx];
-			}
-			ans.push_back({pt[idx], pt[link[idx]], pt[link[link[idx]]]});
-			return ans;
-		}	
+			double t1 = (-2 * (u % v) + sqrtl(discriminant)) / (2 * (v % v));
+			double t2 = (-2 * (u % v) - sqrtl(discriminant)) / (2 * (v % v));
+			return make_shared<pair<double, double>>(t1, t2);
+		}
 };
 
 
-
-
-
-
-
+Point Shift(Point nw, Vector a) {
+	return Point(nw.x + a.x, nw.y + a.y, nw.z + a.z);
+}
