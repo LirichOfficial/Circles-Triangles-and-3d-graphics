@@ -6,6 +6,20 @@
 
 using namespace std;
 
+class Color {
+        public:
+                double r, g, b;
+                Color(double reed = 0, double greeen = 0, double bluee = 0): r(reed), g(greeen), b(bluee) {}
+
+                Color ColorRev() const {
+                        return Color(1 - r, 1 - g, 1 - b);
+                }
+
+                Color operator *(double k) const {
+                        return Color(r * k, g * k, b * k);
+                }
+};
+
 class Point {
 	public:
 		double x;
@@ -90,10 +104,11 @@ class Sphere {
 	public:
 		Point centre;
 		double r;
+		Color col;
 
 		Sphere() {}
 
-		Sphere(Point centre, double r): centre(centre), r(r) {}
+		Sphere(Point centre, double r, Color cl): centre(centre), r(r), col(cl) {}
 
 		shared_ptr<pair<double, double>> Intersection(Vector v, Point a) const {
 			Vector u = Vector(centre, a);

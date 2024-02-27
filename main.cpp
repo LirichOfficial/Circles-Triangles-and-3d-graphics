@@ -11,20 +11,8 @@ using namespace std;
 const int WIDE = 2000;
 const int HEIT = 2000;
 const int MAXCOL = 255;
+const int INF = 1e9;
 
-class Color {
-	public:
-		double r, g, b;
-		Color(double reed = 0, double greeen = 0, double bluee = 0): r(reed), g(greeen), b(bluee) {}
-
-		Color ColorRev() const {
-			return Color(1 - r, 1 - g, 1 - b);
-		}
-
-		Color operator *(double k) const {
-			return Color(r * k, g * k, b * k);
-		}
-};
 
 ostream& operator<<(ostream &out, Color a) {
 	out << round(a.r * MAXCOL) << " " << round(a.g * MAXCOL) << " " << round(a.b * MAXCOL);
@@ -80,31 +68,39 @@ signed main() {
 	double mh = 1, mw = 1, md = 1;
 	
 	Point camera = Point(0, 0, 0);
-	Point sun = Point(30, 0, 0);
+	Point sun = Point(40, 0, 0);
 
-	Sphere shar = Sphere(Point(0, 0, 10), 4);
+	vector<Sphere> shars = {Sphere(Point(-3, 0, 20), 4, Color(1, 0, 0)), Sphere(Point(4, 0, 15), 4, Color(1, 1, 0))};
 
 	for (int i = 0; i < HEIT; i++) {
 		for (int j = 0; j < WIDE; j++) {
-			Point xy = Point(-mw / 2.0 + mw * ((double)j / (WIDE - 1)), mh / 2.0 - mh * ((double)i / (HEIT - 1)), md);
-			Vector v = Vector(camera, xy);
-			auto pt = shar.Intersection(v, camera);
-			if (!pt) {
-				continue;
-			} else {
-				output[i * WIDE + j] = output[i * WIDE + j].ColorRev();
-                                if (pt -> first < pt -> second) {
-                                        Vector sud = (v.Mul(pt -> first) + camera).Mul(-1);
-                                        Point tp = Shift(camera, v.Mul(pt -> first));
-                                        Vector tud = Vector(tp, sun);
-                                        output[i * WIDE + j] = output[i * WIDE + j] * max(sud % tud / (sud.Len() * tud.Len()), 0.0) * 2;
-                                } else {
-                                        Vector sud = (v.Mul(pt -> second) + camera).Mul(-1);
-                                        Point tp = Shift(camera, v.Mul(pt -> second));
-                                        Vector tud = Vector(tp, sun);
-                                        output[i * WIDE + j] = output[i * WIDE + j] * max(sud % tud / (sud.Len() * tud.Len()), 0.0) * 2;
-                                }
+			Color cl = output[i * WIDE + j];
+			double dst = INF;
+			for (auto shar : shars) {
+				Point xy = Point(-mw / 2.0 + mw * ((double)j / (WIDE - 1)), mh / 2.0 - mh * ((double)i / (HEIT - 1)), md);
+				Vector v = Vector(camera, xy);
+				auto pt = shar.Intersection(v, camera);
+				if (!pt) {
+					continue;
+				} else {
+                                	if (pt -> first < pt -> second) {
+                                        	Vector sud = (v.Mul(pt -> first) + camera).Mul(-1);
+                                        	Point tp = Shift(camera, v.Mul(pt -> first));
+                                        	Vector tud = Vector(tp, sun);
+						if (sud.Len() < dst) {
+                                        		cl = shar.col * max(sud % tud / (sud.Len() * tud.Len()), 0.0) * 2;
+						}
+                                	} else {
+                                        	Vector sud = (v.Mul(pt -> second) + camera).Mul(-1);
+                                        	Point tp = Shift(camera, v.Mul(pt -> second));
+                                        	Vector tud = Vector(tp, sun);
+                                        	if (sud.Len() < dst) {
+                                                        cl = shar.col * max(sud % tud / (sud.Len() * tud.Len()), 0.0) * 2;
+                                                }
+                                	}
+				}
 			}
+			output[i * WIDE + j] = cl;
 		}
 	}	
 
