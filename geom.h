@@ -15,7 +15,7 @@ class Color {
                 }
 
                 Color operator *(double k) const {
-                        return Color(r * k, g * k, b * k);
+                        return Color(min(r * k, 1.0), min(g * k, 1.0), min(b * k, 1.0));
                 }
 };
 
