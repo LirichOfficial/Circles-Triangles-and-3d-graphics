@@ -97,6 +97,10 @@ class Vector {
 			return one - two + three;
 		}
 
+		Vector Norm() {
+			return Vector(Point(x / Len(), y / Len(), z / Len()));
+		}
+
 };
 
 class Sphere {

@@ -10,13 +10,14 @@ using namespace std;
 
 const int WIDE = 2000;
 const int HEIT = 2000;
-const int MAXCOL = 255;
+const int MAXCOL = 512;
 const int INF = 1e9;
 const double EPS = 1e-12;
+const double PI = 3.1415926535897932384626;
 
 
 ostream& operator<<(ostream &out, Color a) {
-	out << round(a.r * MAXCOL) << " " << round(a.g * MAXCOL) << " " << round(a.b * MAXCOL);
+	out << (int)(a.r * MAXCOL) << " " << (int)(a.g * MAXCOL) << " " << (int)(a.b * MAXCOL);
 	return out;
 }
 
@@ -56,6 +57,17 @@ void MakeGradient(vector<Color> &output) {
 }
 
 
+double binpow(double n, int p) {
+	if (p == 0) {
+		return 1;
+	}
+	if (p % 2 == 0) {
+		double c = binpow (n, p / 2);
+		return c * c;
+	} else {
+		return binpow(n, p - 1) * n;
+	}
+}
 
 
 signed main() {
@@ -69,9 +81,9 @@ signed main() {
 	double mh = 1, mw = 1, md = 1;
 	
 	Point camera = Point(0, 0, 0);
-	Point sun = Point(40, -10, 0);
+	Point sun = Point(0, 10, 0);
 
-	vector<Sphere> shars = {Sphere(Point(-5, 0, 20), 4, Color(0.5, 0, 0)), Sphere(Point(2, 0, 15), 4, Color(0.5, 0.5, 0))};
+	vector<Sphere> shars = {Sphere(Point(0, 0, 7), 2, Color(1, 1, 0))};
 
 	for (int i = 0; i < HEIT; i++) {
 		for (int j = 0; j < WIDE; j++) {
@@ -80,33 +92,20 @@ signed main() {
 			for (auto shar : shars) {
 				Point xy = Point(-mw / 2.0 + mw * ((double)j / (WIDE - 1)), mh / 2.0 - mh * ((double)i / (HEIT - 1)), md);
 				Vector v = Vector(camera, xy);
-				auto pt = shar.Intersection(v, camera);
-				if (!pt) {
-					continue;
-				} else {
-                                	if (pt -> first < pt -> second) {
-                                        	Vector sud = (v.Mul(pt -> first) + camera).Mul(-1);
-                                        	Point tp = Shift(camera, v.Mul(pt -> first));
-                                        	Vector tud = Vector(tp, sun);
-						auto pp = shar.Intersection(tud.Mul(-1), sun);
-						double d = min(pp -> first, pp -> second);
-						if (sud.Len() < dst && abs(d - 1) <= EPS) {
-                                        		cl = shar.col * (sud % tud / (sud.Len() * tud.Len()) + 1);
-						} else if (sud.Len() < dst) {
-							cl = {0, 0, 0};
-						}
-                                	} else {
-                                        	Vector sud = (v.Mul(pt -> second) + camera).Mul(-1);
-                                        	Point tp = Shift(camera, v.Mul(pt -> second));
-                                        	Vector tud = Vector(tp, sun);
-                                         	auto pp = shar.Intersection(tud.Mul(-1), sun);
-                                                double d = min(pp -> first, pp -> second);
-                                                if (sud.Len() < dst && abs(d - 1) <= EPS) {
-                                                        cl = shar.col * (sud % tud / (sud.Len() * tud.Len()) + 1);
-                                                } else if (sud.Len() < dst) {
-                                                        cl = {0, 0, 0};
-                                                }
-                                	}
+				auto tt = shar.Intersection(v, camera);
+				if (!tt) continue;
+				double t = min(tt -> first, tt -> second);
+				Point pt = Shift(camera, v.Mul(t));
+				Vector tuda = Vector(camera, pt);
+				Vector suda = Vector(sun, pt);
+				auto pp = shar.Intersection(suda, sun);
+				if (tuda.Len() < dst && abs(1 - min(pp -> first, pp -> second)) <= EPS) {
+					dst = suda.Len();
+					Vector base = Vector(shar.centre, pt);
+					cl = shar.col * (base.Norm() % suda.Mul(-1).Norm());
+				} else if (tuda.Len() < dst) {
+					dst = suda.Len();
+					cl = {0, 0, 0};
 				}
 			}
 			output[i * WIDE + j] = cl;
