@@ -10,7 +10,7 @@ using namespace std;
 
 const int WIDE = 1920;
 const int HEIT = 1280;
-const int MAXCOL = 512;
+const int MAXCOL = 255;
 const int INF = 1e9;
 const double EPS = 1e-9;
 const double PI = 3.1415926535897932384626;
@@ -93,7 +93,7 @@ signed main() {
 	double mh = 0.7692, mw = 1.1538, md = 1;
 	
 	Point camera = Point(0, 0, 0);
-	vector<Light> suns = {Light(Point(0, 10, 0), 0.8), Light(Point(10, 0, 1), 1)};
+	vector<Light> suns = {Light(Point(0, 10, 0), 1), Light(Point(10, 0, 1), 0.8)};
 
 	vector<Sphere> shars = {Sphere(Point(2, 0, 14), 2, Color(1, 1, 0)), Sphere(Point(-2, 0, 16), 2, Color(1, 0, 0))};
 
