@@ -14,9 +14,17 @@ class Color {
                         return Color(1 - r, 1 - g, 1 - b);
                 }
 
-                Color operator *(double k) const {
+                Color operator *(double k) {
                         return Color(min(r * k, 1.0), min(g * k, 1.0), min(b * k, 1.0));
                 }
+
+		Color operator +(Color a) {
+			return Color(min(a.r + r, 1.0), min(a.g + g, 1.0), min(a.b + b, 1.0));
+		}
+
+		Color Pow(double p) {
+			return Color(pow(r, p), pow(g, p), pow(b, p));
+		}
 };
 
 class Point {
@@ -31,6 +39,7 @@ class Point {
 			y(y),
 			z(z)
 		{}
+
 };
 
 class Vector {
@@ -103,15 +112,31 @@ class Vector {
 
 };
 
+
+class Material {
+        public:
+                Color col;
+
+                double diffusionAlbedo;
+                double specularAlbedo;
+                int specular;
+		double transparency;
+
+                Material() {}
+		
+		Material(Color col, double a, double b, int c, double tr): col(col), diffusionAlbedo(a), specularAlbedo(b), specular(c), transparency(tr) {}
+};
+
+
 class Sphere {
 	public:
 		Point centre;
 		double r;
-		Color col;
+		Material mat;
 
 		Sphere() {}
 
-		Sphere(Point centre, double r, Color cl): centre(centre), r(r), col(cl) {}
+		Sphere(Point centre, double r, Material mat): centre(centre), r(r), mat(mat) {}
 
 		shared_ptr<pair<double, double>> Intersection(Vector v, Point a) const {
 			Vector u = Vector(centre, a);
