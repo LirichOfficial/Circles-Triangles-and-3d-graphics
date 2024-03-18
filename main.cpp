@@ -101,7 +101,7 @@ void Pers(const Point &camera, const vector<Color> &output, const vector<Light> 
                                 Vector tuda = Vector(camera, pt);
                                 if (tuda.Len() >= dst) continue;
 
-                                cl = shar.mat.col * shar.mat.transparency + cur * (1 - shar.mat.transparency);
+                                cl = shar.mat.col * shar.mat.transparency + cur.ColorRev() * (1 - shar.mat.transparency);
                                 dst = tuda.Len();
                                 norm = Vector(shar.centre, pt);
                                 Mat = shar.mat;
@@ -147,9 +147,11 @@ Color Zerkalo(const vector<Sphere> &shars, const vector<Light> &suns, Vector ray
 
 		if (pers -> second <= EPS) { 
 			ray = ray.Mul(pers -> first);
-		} else {
+		} else if (pers -> first <= EPS) {
 			ray = ray.Mul(pers -> second);
-		}
+		} else {
+			ray = ray.Mul(min(pers -> first, pers -> second));
+		}	
 
 		if (ray.Len() >= dst) continue;
 
@@ -164,7 +166,7 @@ Color Zerkalo(const vector<Sphere> &shars, const vector<Light> &suns, Vector ray
 				auto RealShit = shr.Intersection(suda, sun.centre);
 				if (!RealShit) continue;
 
-				if ((RealShit -> first >= 0 && RealShit -> first < 1) || (RealShit -> second >= 0 && RealShit -> second < 1)) {
+				if ((RealShit -> first >= EPS && 1 - RealShit -> first > EPS) || (RealShit -> second >= EPS && 1 - RealShit -> second > EPS)) {
 					ok = false;
 					break;
 				}
@@ -187,9 +189,9 @@ signed main() {
 	MakeGradient(output);
 	
 	Point camera = Point(0, 0, 0);
-	vector<Light> suns = {Light(Point(-3, 0, -2), 1), Light(Point(10, 0, 4), 0.8)};
+	vector<Light> suns = {Light(Point(-6, 0, -4), 1), Light(Point(10, 0, 4), 0.8)};
 
-	vector<Sphere> shars = {Sphere(Point(0, 0, 15), 2, type["red bubble(basic)"]), Sphere(Point(5, 0, 10), 2, type["yellow bubble(modified)"])};
+	vector<Sphere> shars = {Sphere(Point(-1, 0, 15), 2, type["red bubble(basic)"]), Sphere(Point(4, 0, 11), 2, type["yellow bubble(modified)"])};
 
 	for (int i = 0; i < HEIT; i++) {
 		for (int j = 0; j < WIDE; j++) {
