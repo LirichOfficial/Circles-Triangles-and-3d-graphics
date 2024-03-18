@@ -1,5 +1,4 @@
 #include <bits/stdc++.h>
-#include <memory>
 
 #define i64 long long
 #define d64 long double
@@ -15,9 +14,17 @@ class Color {
                         return Color(1 - r, 1 - g, 1 - b);
                 }
 
-                Color operator *(double k) const {
-                        return Color(r * k, g * k, b * k);
+                Color operator *(double k) {
+                        return Color(min(r * k, 1.0), min(g * k, 1.0), min(b * k, 1.0));
                 }
+
+		Color operator +(Color a) {
+			return Color(min(a.r + r, 1.0), min(a.g + g, 1.0), min(a.b + b, 1.0));
+		}
+
+		Color Pow(double p) {
+			return Color(pow(r, p), pow(g, p), pow(b, p));
+		}
 };
 
 class Point {
@@ -32,6 +39,7 @@ class Point {
 			y(y),
 			z(z)
 		{}
+
 };
 
 class Vector {
@@ -90,25 +98,45 @@ class Vector {
 			return x * a.x + y * a.y + z * a.z;
 		}
 
-/*		Vector operator *(Vector a) {
+		Vector operator *(Vector a) {
 			Vector one, two, three;
 			one = Vector(Point(1, 0, 0)).Mul(y * a.z - z * a.y);
 			two = Vector(Point(0, 1, 0)).Mul(x * a.z - z * a.x);
 			three = Vector(Point(0, 0, 1)).Mul(x * a.y - y * a.x);
 			return one - two + three;
 		}
-*/
+
+		Vector Norm() {
+			return Vector(Point(x / Len(), y / Len(), z / Len()));
+		}
+
 };
+
+
+class Material {
+        public:
+                Color col;
+
+                double diffusionAlbedo;
+                double specularAlbedo;
+                int specular;
+		double transparency;
+
+                Material() {}
+		
+		Material(Color col, double a, double b, int c, double tr): col(col), diffusionAlbedo(a), specularAlbedo(b), specular(c), transparency(tr) {}
+};
+
 
 class Sphere {
 	public:
 		Point centre;
 		double r;
-		Color col;
+		Material mat;
 
 		Sphere() {}
 
-		Sphere(Point centre, double r, Color cl): centre(centre), r(r), col(cl) {}
+		Sphere(Point centre, double r, Material mat): centre(centre), r(r), mat(mat) {}
 
 		shared_ptr<pair<double, double>> Intersection(Vector v, Point a) const {
 			Vector u = Vector(centre, a);
